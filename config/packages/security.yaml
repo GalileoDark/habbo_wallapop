@@ -1,0 +1,25 @@
+security:
+    enable_authenticator_manager: true
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\Usuario
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            form_login:
+                login_path: login        # Ruta del formulario de login
+                check_path: login        # Ruta para verificar los datos del formulario
+                default_target_path: /
+            logout:
+                path: logout             # Ruta para el logout
+                target: /
+    password_hashers:
+        App\Entity\Usuario:
+            algorithm: auto
