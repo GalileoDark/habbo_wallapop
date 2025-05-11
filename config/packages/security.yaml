@@ -13,13 +13,20 @@ security:
             security: false
 
         main:
+            provider: app_user_provider  # Especificar el provider para los usuarios
             form_login:
                 login_path: login        # Ruta del formulario de login
                 check_path: login        # Ruta para verificar los datos del formulario
-                default_target_path: /
+                default_target_path: /   # Página a la que se redirige después de hacer login
             logout:
                 path: logout             # Ruta para el logout
-                target: /
+                target: inicio                # Ruta a la que se redirige después de hacer logout
+
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/perfil, roles: ROLE_USER }  # Solo usuarios logueados pueden acceder a /perfil
+        - { path: ^/registrar, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
     password_hashers:
         App\Entity\Usuario:
             algorithm: auto

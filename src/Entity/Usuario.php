@@ -135,8 +135,8 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
         // No usamos nada extra aquí
     }
 
-    public function getUsername()
+    public function getUsername(): string
     {
-        // TODO: Implement getUsername() method.
+        return (string) $this->email;
     }
 }

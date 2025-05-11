@@ -24,20 +24,27 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+                            <a class="nav-link active" aria-current="page" href="{{ path('inicio') }}">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Categorías</a>
+                            <a class="nav-link" href="{{ path('categorias') }}">Catalogo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Publicaciones</a>
+                            <a class="nav-link" href="{{ path('publicaciones') }}">Publicaciones</a>
                         </li>
                     </ul>
 
-                    <!-- Botones de login/registro -->
+                    <!-- Botones de login/registro o perfil y logout -->
                     <div class="text-end">
-                        <a href="#" class="btn btn-outline-light me-2">Login</a>
-                        <a href="#" class="btn btn-warning">Registrarse</a>
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <!-- Si el usuario está autenticado -->
+                            <a href="{{ path('perfil') }}" class="btn btn-outline-light me-2">Mi Perfil</a>
+                            <a href="{{ path('logout') }}" class="btn btn-warning">Desconectarse</a>
+                        {% else %}
+                            <!-- Si el usuario no está autenticado -->
+                            <a href="{{ path('login') }}" class="btn btn-outline-light me-2">Login</a>
+                            <a href="{{ path('registrar') }}" class="btn btn-warning">Registrarse</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

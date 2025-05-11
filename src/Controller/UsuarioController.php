@@ -62,4 +62,20 @@ class UsuarioController extends AbstractController
     {
         // Symfony maneja automáticamente el logout, no es necesario implementar nada
     }
+
+    #[Route('/perfil', name: 'perfil')]
+    public function perfil(): Response
+    {
+        // Obtiene el usuario logueado
+        $usuario = $this->getUser();
+
+        // Si no está logueado, redirige al login
+        if (!$usuario) {
+            return $this->redirectToRoute('login');
+        }
+
+        return $this->render('usuario/perfil.html.twig', [
+            'usuario' => $usuario,
+        ]);
+    }
 }

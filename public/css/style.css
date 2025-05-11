@@ -1,6 +1,10 @@
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
+    background-image: url('../image/background-habbo.gif');
+    background-repeat: repeat; /* Hace que la imagen se repita tanto en el eje X como en el eje Y */
+    background-size: auto; /* Mantiene el tamaño original de la imagen */
+    background-position: top left; /* Alinea la imagen en la esquina superior izquierda */
 }
 
 .grid-container {

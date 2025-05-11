@@ -20,7 +20,13 @@ class CategoriaRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Categoria::class);
     }
-
+    public function todasLasCategorias()
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c')
+            ->getQuery()
+            ->getResult();
+    }
 //    /**
 //     * @return Categoria[] Returns an array of Categoria objects
 //     */

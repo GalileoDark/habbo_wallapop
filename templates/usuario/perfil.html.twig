@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block body %}
+    <h1>Hola {{ usuario.nombreUsuario }}!</h1>
+
+    <p>ID: {{ usuario.id }}</p>
+    <p>Email: {{ usuario.email }}</p>
+    <p>País: {{ usuario.pais }}</p>
+    <p>Descripción: {{ usuario.descripcion }}</p>
+
+    <img src="/uploads/perfiles/{{ usuario.fotoPerfil }}" alt="Foto de perfil" width="150">
+
+    <p><a href="{{ path('logout') }}">Cerrar sesión</a></p>
+{% endblock %}

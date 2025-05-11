@@ -20,6 +20,14 @@ class ObjetoRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Objeto::class);
     }
+    public function objetosByCategoria($id)
+    {
+        return $this->createQueryBuilder('o')
+            ->where("o.categoria = :categoria")
+            ->setParameter('categoria',$id)
+            ->getQuery()
+            ->getResult();
+    }
 
 //    /**
 //     * @return Objeto[] Returns an array of Objeto objects
