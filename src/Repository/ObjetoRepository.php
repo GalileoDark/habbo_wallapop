@@ -23,34 +23,21 @@ class ObjetoRepository extends ServiceEntityRepository
     public function objetosByCategoria($id)
     {
         return $this->createQueryBuilder('o')
-            ->where("o.categoria = :categoria")
-            ->setParameter('categoria',$id)
+            ->addSelect('c') // esto asegura que también se cargue la categoría
+            ->join('o.categoria', 'c')
+            ->where('o.categoria = :categoria')
+            ->setParameter('categoria', $id)
+            ->getQuery()
+            ->getResult();
+
+    }
+    public function findObjetosConMayorPrecioMedio(int $limite = 5): array
+    {
+        return $this->createQueryBuilder('o')
+            ->join('o.categoria', 'c')
+            ->orderBy('o.precioMedio', 'DESC')
+            ->setMaxResults($limite)
             ->getQuery()
             ->getResult();
     }
-
-//    /**
-//     * @return Objeto[] Returns an array of Objeto objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('o.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Objeto
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

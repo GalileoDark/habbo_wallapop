@@ -1,7 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-image: url('../image/background-habbo.gif');
+    background-image: url('../images/background-habbo.gif');
     background-repeat: repeat; /* Hace que la imagen se repita tanto en el eje X como en el eje Y */
     background-size: auto; /* Mantiene el tamaño original de la imagen */
     background-position: top left; /* Alinea la imagen en la esquina superior izquierda */
@@ -44,4 +42,43 @@ body {
     text-align: center;
     border-radius: 8px;
     margin-top: 10px;
+}
+.main-container {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+.categoria-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    transition: transform 0.3s, box-shadow 0.3s;
+    width: 100%;
+    max-width: 150px;
+}
+
+.categoria-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.categoria-card img {
+    max-height: 100px;
+    object-fit: contain;
+    width: 100%;
+}
+
+.categoria-link {
+    text-decoration: none;
+    color: #000;
+}
+
+.categoria-link span {
+    display: block;
+    margin-top: 8px;
+    font-weight: 500;
 }

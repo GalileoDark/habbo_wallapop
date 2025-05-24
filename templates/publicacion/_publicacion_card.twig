@@ -1,0 +1,40 @@
+{% for publicacion in publicaciones %}
+    <div class="card shadow-sm w-100">
+        <div class="card-body">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-7">
+                    <h5 class="card-title mb-2">{{ publicacion.usuario.nombreUsuario }}</h5>
+                    <p class="mb-1"><strong>Cantidad:</strong> {{ publicacion.cantidad }}</p>
+                    <p class="mb-1"><strong>Estado:</strong>
+                        <span class="badge
+                            {% if publicacion.estado == 'activa' %}bg-success
+                            {% elseif publicacion.estado == 'completada' %}bg-primary
+                            {% else %}bg-secondary{% endif %}">
+                            {{ publicacion.estado|capitalize }}
+                        </span>
+                    </p>
+                    {% if publicacion.buscaObjeto %}
+                        <p class="mb-1"><strong>Busca:</strong> {{ publicacion.buscaObjeto }}</p>
+                    {% endif %}
+                    {% if publicacion.descripcion %}
+                        <hr>
+                        <p class="card-text"><strong>Descripción:</strong> {{ publicacion.descripcion }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-3 d-flex justify-content-end">
+                    <img src="{{ asset('images/catalogo/' ~ publicacion.objeto.categoria.nombre ~ '/' ~ publicacion.objeto.nombre ~ '.gif') }}"
+                         class="img-fluid rounded" style="max-height: 150px;" alt="{{ publicacion.objeto.nombre }}">
+                </div>
+                <div class="col-md-2 d-flex justify-content-center">
+                    {% if app.user and app.user.id != publicacion.usuario.id %}
+                        <a href="{{ path('mensaje_nuevo', { id: publicacion.id }) }}"
+                           class="btn btn-success rounded-circle shadow-lg d-flex justify-content-center align-items-center"
+                           style="width: 48px; height: 48px;" title="Enviar mensaje">
+                            <i class="bi bi-envelope-fill fs-5 text-white"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

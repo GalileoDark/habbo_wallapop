@@ -1,47 +1,49 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Inicio{% endblock %}
+
 {% block head %}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Bundle JS (incluye Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
+
 {% block body %}
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">HabboWallapop</a>
-
-                <!-- Botón hamburguesa -->
+                <a class="navbar-brand" href="{{ path('inicio') }}">
+                    <img src="{{ asset('images/habbowallapop.gif') }}" alt="">
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <!-- Contenido del menú -->
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{{ path('inicio') }}">Inicio</a>
+                            <a class="nav-link" href="{{ path('inicio') }}">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('categorias') }}">Catalogo</a>
+                            <a class="nav-link" href="{{ path('categorias') }}">Catálogo</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('publicaciones') }}">Publicaciones</a>
                         </li>
+
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('mensajes_lista') }}">Mensajes</a>
+                            </li>
+                        {% endif %}
                     </ul>
 
-                    <!-- Botones de login/registro o perfil y logout -->
                     <div class="text-end">
                         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                            <!-- Si el usuario está autenticado -->
                             <a href="{{ path('perfil') }}" class="btn btn-outline-light me-2">Mi Perfil</a>
                             <a href="{{ path('logout') }}" class="btn btn-warning">Desconectarse</a>
                         {% else %}
-                            <!-- Si el usuario no está autenticado -->
                             <a href="{{ path('login') }}" class="btn btn-outline-light me-2">Login</a>
                             <a href="{{ path('registrar') }}" class="btn btn-warning">Registrarse</a>
                         {% endif %}
@@ -50,26 +52,59 @@
             </div>
         </nav>
     </header>
+    <div class="container py-4">
 
-    <h1>Página de inicio</h1>
-
-    <div class="grid-container">
-        <div class="titulo-media">
-            <h2>Objetos con mayor subida de precio</h2>
-            <div class="media-precios">
-                <div class="objeto">1</div>
-                <div class="objeto">2</div>
-                <div class="objeto">3</div>
-                <div class="objeto">4</div>
-                <div class="objeto">5</div>
+        <!-- Objetos con mayor precio medio -->
+        <h2 class="mb-4"><img src="{{ asset('images/subida_de_precio.gif') }}"></h2>
+        <div class="p-3 border rounded bg-light">
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+                {% for objeto in objetosTopPrecio %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm text-center">
+                            <div class="d-flex justify-content-center align-items-center" style="height: 80px;">
+                                <img src="{{ asset('images/catalogo/' ~ objeto.categoria.nombre ~ '/' ~ objeto.nombre ~ '.gif') }}"
+                                     class="img-fluid"
+                                     style="max-height: 50px;"
+                                     alt="{{ objeto.nombre|replace({'_':' '}) }}">
+                            </div>
+                            <div class="card-body p-2">
+                                <h6 class="card-title">{{ objeto.nombre|replace({'_':' '}) }}</h6>
+                                <p class="text-muted">{{ objeto.precioMedio }} créditos</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
-        <!-- 5 bloques de publicaciones -->
-        <div class="publicacion">Publicación 1</div>
-        <div class="publicacion">Publicación 2</div>
-        <div class="publicacion">Publicación 3</div>
-        <div class="publicacion">Publicación 4</div>
-        <div class="publicacion">Publicación 5</div>
+        <!-- Últimas publicaciones -->
+        <h2 class="mb-4 mt-5"><img src="{{ asset('images/ultimas_publicaciones.gif') }}"></h2>
+        <div class="p-3 border rounded bg-light">
+            <div class="row row-cols-1 g-3">
+                {% for publicacion in ultimasPublicaciones %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-auto p-2">
+                                    <img src="{{ asset('images/catalogo/' ~ publicacion.objeto.categoria.nombre ~ '/' ~ publicacion.objeto.nombre ~ '.gif') }}"
+                                         class="img-fluid"
+                                         style="height: 50px; width: auto;"
+                                         alt="{{ publicacion.objeto.nombre }}">
+                                </div>
+                                <div class="col">
+                                    <div class="card-body py-2">
+                                        <h5 class="card-title mb-1">{{ publicacion.objeto.nombre|replace({'_':' '}) }}</h5>
+                                        <p class="card-text small mb-1">Descripcion: {{ publicacion.descripcion[:80] ~ '...' }}</p>
+                                        <p class="text-primary fw-bold mb-2">    Objeto que busca: {{ publicacion.buscaObjeto ? publicacion.buscaObjeto : 'se negocia' }}</p>
+                                        <a href="{{ path('publicacion_ver', { id: publicacion.id }) }}" class="btn btn-sm btn-outline-dark">Ver</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
     </div>
 {% endblock %}

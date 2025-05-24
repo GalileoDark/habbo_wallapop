@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tus conversaciones{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Bundle JS (incluye Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+{% endblock %}
+
+{% block body %}
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ path('inicio') }}">
+                    <img src="{{ asset('images/habbowallapop.gif') }}" alt="">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('inicio') }}">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('categorias') }}">Catálogo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('publicaciones') }}">Publicaciones</a>
+                        </li>
+
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('mensajes_lista') }}">Mensajes</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="text-end">
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <a href="{{ path('perfil') }}" class="btn btn-outline-light me-2">Mi Perfil</a>
+                            <a href="{{ path('logout') }}" class="btn btn-warning">Desconectarse</a>
+                        {% else %}
+                            <a href="{{ path('login') }}" class="btn btn-outline-light me-2">Login</a>
+                            <a href="{{ path('registrar') }}" class="btn btn-warning">Registrarse</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+
+
+    <div class="container py-5 d-flex justify-content-center">
+        <div class="bg-white p-4 border rounded shadow-sm" style="min-width: 60vw; max-width: 100%;">
+            <h2 class="mb-4"><img src="{{ asset('images/tus_conversaciones.gif') }}"></h2>
+
+            {% if conversaciones is empty %}
+                <div class="alert alert-info">No tienes conversaciones activas.</div>
+            {% else %}
+                <div class="list-group">
+                    {% for key, chat in conversaciones %}
+                        <a href="{{ path('mensaje_nuevo', {
+                            id: chat.publicacion.id,
+                            id_receptor: chat.usuario.id
+                        }) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ chat.usuario.nombreUsuario }}</strong><br>
+                                <small class="text-muted">{{ chat.publicacion.descripcion|slice(0, 50) }}</small>
+                            </div>
+                            <div class="text-end text-muted">
+                                {{ chat.ultimoMensaje.fechaEnvio|date('d/m/Y H:i') }}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

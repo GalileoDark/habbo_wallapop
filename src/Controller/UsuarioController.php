@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Usuario;
 use App\Form\RegistrarFormType;
 use App\Form\RegistrationFormType;
+use App\Form\UsuarioEditarType;
 use App\Repository\UsuarioRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,7 @@ class UsuarioController extends AbstractController
         // Crear nuevo usuario vacío
         $usuario = new Usuario();
         $usuario->setPais('No especificado');
-        $usuario->setFotoPerfil('defaul.jpg');
+        $usuario->setFotoPerfil('defaul.png');
         $usuario->setDescripcion('');
 
         // Crear formulario
@@ -78,4 +79,43 @@ class UsuarioController extends AbstractController
             'usuario' => $usuario,
         ]);
     }
+    #[Route('/perfil/editar', name: 'perfil_editar')]
+    public function editarPerfil(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        /** @var User $usuario */
+        $usuario = $this->getUser();
+
+        $nombreUsuarioOriginal = $usuario->getNombreUsuario();
+        $emailOriginal = $usuario->getEmail();
+
+        $form = $this->createForm(UsuarioEditarType::class, $usuario);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Restaurar campos no editables
+            $usuario->setNombreUsuario($nombreUsuarioOriginal);
+            $usuario->setEmail($emailOriginal);
+
+            // Procesar contraseña si fue introducida
+            $plainPassword = $form->get('password')->getData();
+            if ($plainPassword) {
+                $hashedPassword = $passwordHasher->hashPassword($usuario, $plainPassword);
+                $usuario->setPassword($hashedPassword);
+            }
+
+            $em->flush();
+
+            $this->addFlash('success', 'Perfil actualizado correctamente.');
+            return $this->redirectToRoute('perfil');
+        }
+
+        return $this->render('usuario/editar.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+
 }

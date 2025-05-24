@@ -1,24 +1,79 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Estudiantes{% endblock %}
+{% block title %}Categorías{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-        .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-    </style>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ path('inicio') }}">
+                    <img src="{{ asset('images/habbowallapop.gif') }}" alt="">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-    <div class="example-wrapper">
-        <h1>categorias</h1>
-        <table border="1">
-            <tr>
-                <td>Nombre</td>
-            </tr>
-            {% for item in categorias %}
-                <tr>
-                    <td><a href="{{ path('objetoByCategoria', {id: item.id}) }}"> {{ item.nombre }}</a></td>
-                </tr>
-            {% endfor %}
-        </table>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('inicio') }}">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('categorias') }}">Catálogo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('publicaciones') }}">Publicaciones</a>
+                        </li>
+
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('mensajes_lista') }}">Mensajes</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="text-end">
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            <a href="{{ path('perfil') }}" class="btn btn-outline-light me-2">Mi Perfil</a>
+                            <a href="{{ path('logout') }}" class="btn btn-warning">Desconectarse</a>
+                        {% else %}
+                            <a href="{{ path('login') }}" class="btn btn-outline-light me-2">Login</a>
+                            <a href="{{ path('registrar') }}" class="btn btn-warning">Registrarse</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+
+
+    <!-- Contenido centrado -->
+    <div class="container my-5">
+        <div class="main-container mx-auto p-4 rounded" style="background-color: #e9ecef; max-width: 1200px;">
+            <h1 class="text-center mb-4"><img src="{{ asset('images/categorias.gif') }}"></h1>
+
+            <div class="row justify-content-center">
+                {% for item in categorias %}
+                    <div class="col-6 col-md-4 col-lg-2 mb-4 d-flex justify-content-center">
+                        <div class="categoria-card text-center">
+                            <a href="{{ path('objetoByCategoria', {id: item.id}) }}" class="categoria-link">
+                                <img src="{{ asset('images/catalogo/' ~ item.nombre ~ '/banner.gif') }}" alt="{{ item.nombre }}">
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock %}

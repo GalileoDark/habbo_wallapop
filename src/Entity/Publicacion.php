@@ -20,6 +20,12 @@ class Publicacion
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $buscaObjeto = null;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 1])]
+    private ?int $cantidad = 1;
+
+    #[ORM\Column(length: 20, options: ['default' => 'activa'])]
+    private ?string $estado = 'activa';
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Usuario $usuario = null;
@@ -41,7 +47,6 @@ class Publicacion
     public function setDescripcion(?string $descripcion): static
     {
         $this->descripcion = $descripcion;
-
         return $this;
     }
 
@@ -53,7 +58,28 @@ class Publicacion
     public function setBuscaObjeto(?string $buscaObjeto): static
     {
         $this->buscaObjeto = $buscaObjeto;
+        return $this;
+    }
 
+    public function getCantidad(): ?int
+    {
+        return $this->cantidad;
+    }
+
+    public function setCantidad(?int $cantidad): static
+    {
+        $this->cantidad = $cantidad;
+        return $this;
+    }
+
+    public function getEstado(): ?string
+    {
+        return $this->estado;
+    }
+
+    public function setEstado(?string $estado): static
+    {
+        $this->estado = $estado;
         return $this;
     }
 
@@ -65,7 +91,6 @@ class Publicacion
     public function setUsuario(?Usuario $usuario): static
     {
         $this->usuario = $usuario;
-
         return $this;
     }
 
@@ -77,7 +102,6 @@ class Publicacion
     public function setObjeto(?Objeto $objeto): static
     {
         $this->objeto = $objeto;
-
         return $this;
     }
 }

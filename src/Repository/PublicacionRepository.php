@@ -21,28 +21,26 @@ class PublicacionRepository extends ServiceEntityRepository
         parent::__construct($registry, Publicacion::class);
     }
 
-//    /**
-//     * @return Publicacion[] Returns an array of Publicacion objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findUltimasPublicaciones(int $limite = 5): array
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.objeto', 'o')
+            ->addSelect('o')
+            ->leftJoin('o.categoria', 'c')
+            ->addSelect('c')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults($limite)
+            ->getQuery()
+            ->getResult();
+    }
 
-//    public function findOneBySomeField($value): ?Publicacion
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findLatest5(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.id', 'DESC') // en vez de fechaCreacion
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
+
+    }
 }

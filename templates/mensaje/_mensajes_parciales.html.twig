@@ -1,0 +1,9 @@
+{% for mensaje in mensajes %}
+    <div class="mb-2">
+        <small>
+            <strong>{{ mensaje.usuario.username }}</strong> -
+            <em>{{ mensaje.fechaEnvio|date('d/m/Y H:i') }}</em>
+        </small>
+        <p>{{ mensaje.contenido }}</p>
+    </div>
+{% endfor %}

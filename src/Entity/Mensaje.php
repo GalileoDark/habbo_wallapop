@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\MensajeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Usuario;
+use App\Entity\Publicacion;
 
 #[ORM\Entity(repositoryClass: MensajeRepository::class)]
 class Mensaje
@@ -22,7 +24,11 @@ class Mensaje
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Usuario $usuario = null;
+    private ?Usuario $emisor = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Usuario $receptor = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -57,14 +63,26 @@ class Mensaje
         return $this;
     }
 
-    public function getUsuario(): ?Usuario
+    public function getEmisor(): ?Usuario
     {
-        return $this->usuario;
+        return $this->emisor;
     }
 
-    public function setUsuario(?Usuario $usuario): static
+    public function setEmisor(?Usuario $emisor): static
     {
-        $this->usuario = $usuario;
+        $this->emisor = $emisor;
+
+        return $this;
+    }
+
+    public function getReceptor(): ?Usuario
+    {
+        return $this->receptor;
+    }
+
+    public function setReceptor(?Usuario $receptor): static
+    {
+        $this->receptor = $receptor;
 
         return $this;
     }
