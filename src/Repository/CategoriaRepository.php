@@ -20,6 +20,8 @@ class CategoriaRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Categoria::class);
     }
+
+    //Busca todas las categorias.
     public function todasLasCategorias()
     {
         return $this->createQueryBuilder('c')

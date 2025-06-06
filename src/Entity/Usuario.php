@@ -27,7 +27,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $pais = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $fotoPerfil = null;
 
     #[ORM\Column(length: 255, nullable: true)]

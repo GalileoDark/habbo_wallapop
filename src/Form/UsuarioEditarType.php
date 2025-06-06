@@ -17,14 +17,6 @@ class UsuarioEditarType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nombreUsuario', TextType::class, [
-                'disabled' => true, // Solo lectura
-                'label' => 'Nombre de usuario'
-            ])
-            ->add('email', EmailType::class, [
-                'disabled' => true,
-                'label' => 'Correo electrónico'
-            ])
             ->add('pais', TextType::class, [
                 'required' => false,
             ])

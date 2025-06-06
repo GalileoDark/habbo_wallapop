@@ -2,18 +2,27 @@
 
 namespace App\Controller;
 
+use App\Entity\Inventario;
+use App\Entity\Objeto;
 use App\Entity\Usuario;
 use App\Form\RegistrarFormType;
-use App\Form\RegistrationFormType;
 use App\Form\UsuarioEditarType;
+use App\Repository\InventarioRepository;
+use App\Repository\ObjetoRepository;
 use App\Repository\UsuarioRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\String\Slugger\SluggerInterface;
+
 
 class UsuarioController extends AbstractController
 {
@@ -80,35 +89,36 @@ class UsuarioController extends AbstractController
         ]);
     }
     #[Route('/perfil/editar', name: 'perfil_editar')]
-    public function editarPerfil(
-        Request $request,
-        EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
-    ): Response {
-        /** @var User $usuario */
+    public function editarPerfil(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    {
         $usuario = $this->getUser();
-
-        $nombreUsuarioOriginal = $usuario->getNombreUsuario();
-        $emailOriginal = $usuario->getEmail();
-
         $form = $this->createForm(UsuarioEditarType::class, $usuario);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Restaurar campos no editables
-            $usuario->setNombreUsuario($nombreUsuarioOriginal);
-            $usuario->setEmail($emailOriginal);
 
-            // Procesar contraseña si fue introducida
-            $plainPassword = $form->get('password')->getData();
-            if ($plainPassword) {
-                $hashedPassword = $passwordHasher->hashPassword($usuario, $plainPassword);
-                $usuario->setPassword($hashedPassword);
+            $fotoFile = $form->get('fotoPerfil')->getData();
+
+            if ($fotoFile) {
+                $originalFilename = pathinfo($fotoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $fotoFile->guessExtension();
+
+                try {
+                    $fotoFile->move(
+                        $this->getParameter('perfil_directory'), // lo definimos abajo
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    // manejar el error si falla
+                }
+
+                $usuario->setFotoPerfil($newFilename);
             }
 
+            $em->persist($usuario);
             $em->flush();
 
-            $this->addFlash('success', 'Perfil actualizado correctamente.');
             return $this->redirectToRoute('perfil');
         }
 
@@ -116,6 +126,112 @@ class UsuarioController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+    #[Route('/inventario', name: 'ver_inventario')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function verInventario(InventarioRepository $inventarioRepository): Response
+    {
+        $usuario = $this->getUser(); // Usuario logueado
 
+        $inventario = $inventarioRepository->findBy(['usuario' => $usuario]);
 
+        return $this->render('usuario/verInventario.html.twig', [
+            'inventario' => $inventario,
+        ]);
+    }
+
+    #[Route('/inventario/anadir/{id}', name: 'anadir_al_inventario')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function anadirAlInventario(
+        int $id,
+        Request $request,
+        ObjetoRepository $objetoRepository,
+        InventarioRepository $inventarioRepository,
+        EntityManagerInterface $em
+    ): RedirectResponse {
+        $usuario = $this->getUser();
+        $referer = $request->headers->get('referer') ?? $this->generateUrl('inicio');
+
+        $objeto = $objetoRepository->find($id);
+
+        if (!$objeto) {
+            $this->addFlash('error', 'El objeto no se pudo añadir porque no existe.');
+            return $this->redirect($referer);
+        }
+
+        try {
+            $inventario = $inventarioRepository->findOneBy([
+                'usuario' => $usuario,
+                'objeto' => $objeto,
+            ]);
+
+            if ($inventario) {
+                $inventario->setCantidad($inventario->getCantidad() + 1);
+            } else {
+                $inventario = new Inventario();
+                $inventario->setUsuario($usuario);
+                $inventario->setObjeto($objeto);
+                $inventario->setCantidad(1);
+                $em->persist($inventario);
+            }
+
+            $em->flush();
+            $this->addFlash('success', '¡Objeto añadido al inventario!');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Ocurrió un error al añadir el objeto.');
+        }
+
+        return $this->redirect($referer);
+    }
+    #[Route('/inventario/{id}/add', name: 'inventario_add', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function addCantidad(
+        Objeto $objeto,
+        EntityManagerInterface $em,
+        InventarioRepository $inventarioRepo
+    ): RedirectResponse {
+        $user = $this->getUser();
+        $entrada = $inventarioRepo->findOneBy(['usuario' => $user, 'objeto' => $objeto]);
+
+        if ($entrada) {
+            $entrada->setCantidad($entrada->getCantidad() + 1);
+        } else {
+            $entrada = new Inventario();
+            $entrada->setUsuario($user);
+            $entrada->setObjeto($objeto);
+            $entrada->setCantidad(1);
+            $em->persist($entrada);
+        }
+
+        $em->flush();
+        $this->addFlash('success', 'Cantidad añadida correctamente.');
+
+        return $this->redirectToRoute('ver_inventario');
+    }
+
+    #[Route('/inventario/{id}/remove', name: 'inventario_remove', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function removeCantidad(
+        Objeto $objeto,
+        EntityManagerInterface $em,
+        InventarioRepository $inventarioRepo
+    ): RedirectResponse {
+        $user = $this->getUser();
+        $entrada = $inventarioRepo->findOneBy(['usuario' => $user, 'objeto' => $objeto]);
+
+        if ($entrada) {
+            $cantidadActual = $entrada->getCantidad();
+            if ($cantidadActual > 1) {
+                $entrada->setCantidad($cantidadActual - 1);
+            } else {
+                $em->remove($entrada); // Elimina la entrada si la cantidad llega a 0
+            }
+
+            $em->flush();
+            $this->addFlash('success', 'Cantidad actualizada.');
+        } else {
+            $this->addFlash('danger', 'No tienes este objeto en el inventario.');
+        }
+
+        return $this->redirectToRoute('ver_inventario');
+    }
 }

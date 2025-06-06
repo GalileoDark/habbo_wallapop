@@ -20,6 +20,8 @@ class ObjetoRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Objeto::class);
     }
+
+    // Buscar objetos por categoria
     public function objetosByCategoria($id)
     {
         return $this->createQueryBuilder('o')
@@ -31,6 +33,7 @@ class ObjetoRepository extends ServiceEntityRepository
             ->getResult();
 
     }
+    //Busca el objeto con mayo rprecio medio
     public function findObjetosConMayorPrecioMedio(int $limite = 5): array
     {
         return $this->createQueryBuilder('o')
